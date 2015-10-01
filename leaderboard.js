@@ -9,13 +9,16 @@ if (Meteor.isClient) {
     player: function(){
       return PlayersList.find({}, {sort: {score: -1, name: 1}});
     },
+
     count: function(){
       return PlayersList.find().count();
     },
+
     selectedClass: function() {
       var selectedPlayer = Session.get('selectedPlayer');
       if (this._id === selectedPlayer) {return 'selected';}
     },
+
     showSelectedPlayer: function(){
       var selectedPlayer = Session.get('selectedPlayer');
       return PlayersList.findOne(selectedPlayer);
@@ -88,10 +91,11 @@ if (Meteor.isServer) {
       },
 
       modifyPlayerScore: function (selectedPlayer, scoreValue) {
-        PlayersList.update(selectedPlayer, {$inc: {score: scoreValue}});
+        PlayersList.update({_id: selectedPlayer, createdBy: Meteor.userId()},
+          {$inc: {score: scoreValue}
+        });
       }
-
     });
-
+    
   });
 }
