@@ -28,19 +28,24 @@ if (Meteor.isClient) {
       var confirmed = confirm("Do you want to remove " + selectedPlayer.name);
       //if confirm, remove the player
       if (confirmed) PlayersList.remove(selectedPlayer);
+      Meteor.call('removePlayerData', selectedPlayer);
     },
+
     'click .player': function(){
       console.log(this.name);
       Session.set('selectedPlayer', this._id);
     },
+
     'click .increment': function() {
       var selectedPlayer = Session.get('selectedPlayer');
-      PlayersList.update(selectedPlayer, {$inc: {score: 5}});
+      Meteor.call('modifyPlayerScore', selectedPlayer, 5);
     },
-    'click .decrement': function() {
+
+    'click .decrement': function(){
       var selectedPlayer = Session.get('selectedPlayer');
-      PlayersList.update(selectedPlayer, {$inc: {score: -5}});
+      Meteor.call('modifyPlayerScore', selectedPlayer, -5);
     },
+
     'click a': function(event){
       event.preventDefault();
     },
@@ -57,15 +62,36 @@ if (Meteor.isClient) {
         createdBy: currentUserId,
       });
       event.target.playerName.value = '';
+      Meteor.call('insertPlayerData', playerNameVar);
     },
   });
 }
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    console.log("Everything working on the server");
+
     Meteor.publish('thePlayers', function(){
       return PlayersList.find({createdBy: this.userId});
     });
+
+    Meteor.methods({
+      insertPlayerData: function (playerNameVar) {
+        PlayersList.insert({
+          name: playerNameVar,
+          score: 0,
+          createdBy: Meteor.userId(),
+        });
+      },
+
+      removePlayerData: function (selectedPlayer) {
+        PlayersList.remove({_id: selectedPlayer, createdBy: Meteor.userId});
+      },
+
+      modifyPlayerScore: function (selectedPlayer, scoreValue) {
+        PlayersList.update(selectedPlayer, {$inc: {score: scoreValue}});
+      }
+
+    });
+
   });
 }
