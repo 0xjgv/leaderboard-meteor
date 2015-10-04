@@ -1,4 +1,11 @@
 /* CSS declarations go here */
+.addplayer {
+  font-family: "Helvetica Neue", sans-serif;
+  font-weight: 300;
+  width: 30%;
+  margin-top: 15px;
+}
+
 .selected {
   background-color: yellow;
 }
